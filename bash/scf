@@ -1,0 +1,45 @@
+cat > $prefix.scf.in <<EOF
+ &control
+  calculation = 'scf'
+  title = 'Self-consistent field calculation of $prefix'
+  verbosity = 'high'
+  restart_mode = 'from_scratch'
+  outdir ='$TMP_DIR/'
+  prefix ='$prefix'
+  pseudo_dir = '$PSEUDO_DIR/'
+  tprnfor = .TRUE. ! check if the forces are zero 
+ /
+ &system
+  ibrav = 8
+  celldm(1) = 8.745
+  celldm(2) = 0.725 
+  celldm(3) = 20.0 
+  nat = 4 
+  ntyp = 1 
+  nbnd = 16
+  ecutwfc = 34.0
+  ! ecutrho = 140.0 ! do not specify for norm-conserving pseudopotentials 
+  occupations = 'fixed' 
+ /
+ &electrons
+  electron_maxstep = 100
+  conv_thr = 1.0d-8
+  mixing_mode = 'plain'
+  mixing_beta = 0.3d0
+  diagonalization = 'cg'
+  startingwfc = 'atomic'
+ /
+ATOMIC_SPECIES
+ P  30.974  P.pbe-n-kjpaw_psl.0.1.upf
+ATOMIC_POSITIONS {bohr}
+ P -0.780 0.00 1.990
+ P 0.780 0.00 -1.990
+ P -3.595 3.172 1.990
+ P 3.595 -3.172 -1.990
+K_POINTS {automatic}
+ 12 12 1 0 0 0
+EOF
+$ECHO "  running the self-consistent field calculation...\c"
+$PW_COMMAND < $prefix.scf.in > $prefix.scf.out
+check_failure $?
+$ECHO " done"
