@@ -17,7 +17,7 @@ cat > $prefix.scf.in <<EOF
   nat = 4 
   ntyp = 1 
   nbnd = 16
-  ecutwfc = 34.0
+  ecutwfc = 60.0
   ! ecutrho = 140.0 ! do not specify for norm-conserving pseudopotentials 
   occupations = 'fixed' 
  /
@@ -30,14 +30,14 @@ cat > $prefix.scf.in <<EOF
   startingwfc = 'atomic'
  /
 ATOMIC_SPECIES
- P  30.974  P.pbe-n-kjpaw_psl.0.1.upf
+ P  30.974  $pseudo
 ATOMIC_POSITIONS {bohr}
  P -0.780 0.00 1.990
  P 0.780 0.00 -1.990
  P -3.595 3.172 1.990
  P 3.595 -3.172 -1.990
 K_POINTS {automatic}
- 12 12 1 0 0 0
+ 4 4 1 0 0 0
 EOF
 $ECHO "  running the self-consistent field calculation...\c"
 $PW_COMMAND < $prefix.scf.in > $prefix.scf.out
