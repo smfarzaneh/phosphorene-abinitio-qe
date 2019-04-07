@@ -1,0 +1,19 @@
+cat > $prefix.proj.in <<EOF
+&projwfc
+ prefix = '$prefix'
+ outdir = '$TMP_DIR/'
+ ngauss = 0
+ ! degauss = 0.005
+ Emin = -20.0 
+ Emax = 4.0
+ DeltaE = 0.005
+ ! pawproj = .TRUE.
+ filpdos = '$prefix.dos'
+ filproj = '$prefix.proj'
+ kresolveddos = .TRUE.
+/
+EOF
+$ECHO "  running the projected wave function calculation...\c"
+$PROJ_COMMAND < $prefix.proj.in > $prefix.proj.out
+check_failure $?
+$ECHO " done"

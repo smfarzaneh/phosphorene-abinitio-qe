@@ -1,0 +1,44 @@
+cat > $prefix.nscf.in <<EOF
+ &control
+  calculation = 'nscf'
+  title = 'non-self-consistent field calculation of $prefix'
+  verbosity = 'high'
+  restart_mode = 'from_scratch'
+  outdir ='$TMP_DIR/'
+  prefix ='$prefix'
+  pseudo_dir = '$PSEUDO_DIR/'
+ /
+ &system
+  ibrav = 8
+  celldm(1) = 8.745
+  celldm(2) = 0.725 
+  celldm(3) = 20.0 
+  nat = 4 
+  ntyp = 1 
+  nbnd = 16
+  ecutwfc = 60.0
+  ! ecutrho = 140.0
+  occupations = 'tetrahedra' 
+ /
+ &electrons
+  electron_maxstep = 100
+  conv_thr = 1.0d-8
+  mixing_mode = 'plain'
+  mixing_beta = 0.3d0
+  diagonalization = 'cg'
+  startingwfc = 'atomic'
+ /
+ATOMIC_SPECIES
+ P  30.974  $pseudo
+ATOMIC_POSITIONS {bohr}
+ P -0.780 0.00 1.990
+ P 0.780 0.00 -1.990
+ P -3.595 3.172 1.990
+ P 3.595 -3.172 -1.990
+K_POINTS {automatic}
+ 4 4 1 0 0 0
+EOF
+$ECHO "  running the non-scf calculation...\c"
+$PW_COMMAND < $prefix.nscf.in > $prefix.nscf.out
+check_failure $?
+$ECHO " done"
