@@ -7,7 +7,6 @@ cat > $prefix.proj.in <<EOF
  Emin = -20.0 
  Emax = 4.0
  DeltaE = 0.005
- ! pawproj = .TRUE.
  filpdos = '$prefix.dos'
  filproj = '$prefix.proj'
  kresolveddos = .TRUE.
