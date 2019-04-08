@@ -1,0 +1,98 @@
+#!/bin/sh
+
+THIS_DIR=`pwd`
+
+# check whether echo has the -e option
+if test "`echo -e`" = "-e" ; then ECHO=echo ; else ECHO="echo -e" ; fi
+
+$ECHO
+$ECHO "The Band Structure of Monolayer Black Phosphorus (Phosphorene)"
+$ECHO 
+
+# set the needed environment variables
+. ~/code/espresso6.0/environment_variables
+# override pseudopotential path
+PSEUDO_DIR=$THIS_DIR/pseudo
+
+# required executables and pseudopotentials
+BIN_LIST="pw.x pp.x bands.x"
+PSEUDO_LIST="P.pbe-n-kjpaw_psl.1.0.0.UPF" # P.rel-pbe-nl-kjpaw_psl.1.0.0.UPF, P.pbe-n-kjpaw_psl.1.0.0.UPF
+TMP_DIR="$THIS_DIR/tempdir"
+
+$ECHO
+$ECHO "  executables directory: $BIN_DIR"
+$ECHO "  pseudo directory:      $PSEUDO_DIR"
+$ECHO "  temporary directory:   $TMP_DIR"
+$ECHO "\n  checking that needed directories and files exist...\c"
+
+# check for directories
+for DIR in "$BIN_DIR" "$PSEUDO_DIR" ; do
+    if test ! -d $DIR ; then
+        $ECHO
+        $ECHO "ERROR: $DIR not existent or not a directory"
+        $ECHO "Aborting"
+        exit 1
+    fi
+done
+for DIR in "$TMP_DIR" "$THIS_DIR/results-nonrel" ; do
+    if test ! -d $DIR ; then
+        mkdir $DIR
+    fi
+done
+cd $THIS_DIR/results-nonrel
+
+# check for executables
+for FILE in $BIN_LIST ; do
+    if test ! -x $BIN_DIR/$FILE ; then
+        $ECHO
+        $ECHO "ERROR: $BIN_DIR/$FILE not existent or not executable"
+        $ECHO "Aborting"
+        exit 1
+    fi
+done
+
+# check for pseudopotentials
+for FILE in $PSEUDO_LIST ; do
+    if test ! -r $PSEUDO_DIR/$FILE ; then
+       $ECHO
+       $ECHO "Downloading $FILE to $PSEUDO_DIR...\n"
+            $WGET $PSEUDO_DIR/$FILE $NETWORK_PSEUDO/$FILE 2> /dev/null
+    fi
+    if test $? != 0; then
+        $ECHO
+        $ECHO "ERROR: $PSEUDO_DIR/$FILE not existent or not readable"
+        $ECHO "Aborting"
+        exit 1
+    fi
+done
+$ECHO " done"
+
+# how to run executables
+PW_COMMAND="$PARA_PREFIX $BIN_DIR/pw.x $PARA_POSTFIX"
+BANDS_COMMAND="$PARA_PREFIX $BIN_DIR/bands.x $PARA_POSTFIX"
+PROJ_COMMAND="$PARA_PREFIX $BIN_DIR/projwfc.x $PARA_POSTFIX"
+
+$ECHO
+$ECHO "  running pw.x as:       $PW_COMMAND"
+$ECHO "  running bands.x as:    $BANDS_COMMAND"
+$ECHO "  running projwfc.x as:    $PROJ_COMMAND"
+$ECHO
+
+# set paramters shared among all modules
+prefix='phosphorene'
+pseudo='P.pbe-n-kjpaw_psl.1.0.0.UPF'
+ecutwfc=34.0
+num_k=8
+
+# variable-cell relaxation
+# . ../bash/vc-relax
+# self-consistent field calculation
+. ../bash/scf
+# band structure calculation along high-symmetry lines
+# . ../bash/band
+# post-processing for band structure
+# . ../bash/bands
+# non-self-consistent calculation 
+. ../bash/nscf
+# projected wave functions 
+. ../bash/proj
