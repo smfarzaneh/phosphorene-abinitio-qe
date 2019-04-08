@@ -4,6 +4,10 @@
 # Output files
 *.pdf
 *.out
+*.dat*
+*.dos*
+*.lowdin
+*.projwfc_up
 
 # Directories 
 **/resutls
