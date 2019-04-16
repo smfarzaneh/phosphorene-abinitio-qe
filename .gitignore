@@ -5,6 +5,6 @@
 *.pdf
 
 # Directories 
-**/resutls-nonrel
+**/results-nonrel
 **/results-rel
 **/tempdir
