@@ -1,0 +1,55 @@
+#!/bin/sh
+
+cat > $prefix.vc-relax.in <<EOF
+ &control
+  calculation = 'vc-relax'
+  title = 'Variable-cell relaxation of $prefix'
+  verbosity = 'high'
+  restart_mode = 'from_scratch'
+  outdir = '$TMP_DIR/'
+  prefix ='$prefix'
+  pseudo_dir = '$PSEUDO_DIR/'
+  tprnfor= .TRUE.
+  forc_conv_thr=1.0d-5
+  etot_conv_thr=1.0d-6
+ /
+ &system
+  ibrav = 8
+  celldm(1) = 8.269
+  celldm(2) = 0.757
+  celldm(3) = 20.0 
+  nat = 4 
+  ntyp = 1 
+  nbnd = 16
+  ecutwfc = 34.0
+  occupations = 'fixed' 
+ /
+ &electrons
+  electron_maxstep = 100
+  conv_thr = 1.0d-9
+  mixing_mode = 'plain'
+  mixing_beta = 0.3d0
+  diagonalization = 'cg'
+ /
+ &ions
+  ion_dynamics = 'bfgs'
+  upscale = 20.0
+ / 
+ &cell
+  ! cell_factor = 1.5D0
+ /
+ ATOMIC_SPECIES
+  $atom  30.974  $pseudo
+ ATOMIC_POSITIONS {bohr}
+  $atom -0.666 0.000 2.013
+  $atom 0.666 -0.000 -2.013
+  $atom -3.469 3.132 2.013
+  $atom 3.469 -3.132 -2.013
+ K_POINTS {automatic}
+  $num_k $num_k 1 0 0 0
+EOF
+
+$ECHO "  running the variable cell relaxation...\c"
+$PW_COMMAND < $prefix.vc-relax.in > $prefix.vc-relax.out
+check_failure $?
+$ECHO " done"
