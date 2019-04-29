@@ -15,8 +15,8 @@ $ECHO
 PSEUDO_DIR=$THIS_DIR/pseudo
 
 # required executables and pseudopotentials
-BIN_LIST="pw.x pp.x bands.x"
-PSEUDO_LIST="P.pbe-n-kjpaw_psl.1.0.0.UPF" # P.rel-pbe-nl-kjpaw_psl.1.0.0.UPF, P.pbe-n-kjpaw_psl.1.0.0.UPF
+BIN_LIST="pw.x pp.x bands.x plotrho.x projwfc.x"
+PSEUDO_LIST="P.rel-pbe-nl-kjpaw_psl.1.0.0.UPF" # P.rel-pbe-nl-kjpaw_psl.1.0.0.UPF, P.pbe-n-kjpaw_psl.1.0.0.UPF
 TMP_DIR="$THIS_DIR/tempdir"
 
 $ECHO
@@ -71,6 +71,8 @@ $ECHO " done"
 PW_COMMAND="$PARA_PREFIX $BIN_DIR/pw.x $PARA_POSTFIX"
 BANDS_COMMAND="$PARA_PREFIX $BIN_DIR/bands.x $PARA_POSTFIX"
 PROJ_COMMAND="$PARA_PREFIX $BIN_DIR/projwfc.x $PARA_POSTFIX"
+PP_COMMAND="$PARA_PREFIX $BIN_DIR/pp.x $PARA_POSTFIX"
+PLOTRHO_COMMAND="$PARA_PREFIX $BIN_DIR/plotrho.x $PARA_POSTFIX"
 
 $ECHO
 $ECHO "  running pw.x as:       $PW_COMMAND"
@@ -79,13 +81,31 @@ $ECHO "  running projwfc.x as:    $PROJ_COMMAND"
 $ECHO
 
 # set paramters shared among all modules
+atom='P'
 prefix='phosphorene'
-pseudo='P.pbe-n-kjpaw_psl.1.0.0.UPF'
+pseudo='P.rel-pbe-nl-kjpaw_psl.1.0.0.UPF'
 ecutwfc=34.0
-num_k=8
+num_k=6
+soc='.TRUE.'
+if [ "$soc" == ".TRUE." ]; 
+then
+    num_band=32
+else
+    num_band=16
+fi  
+efield='.TRUE.'
+efield_amp=4.0d-3
+
+# clean TMP_DIR and RESULTS
+# $ECHO "  cleaning up temporary files...\c"
+# rm -rf $TMP_DIR/$prefix*
+# rm -rf $THIS_DIR/results-nonrel/$prefix*
+# $ECHO " done"
 
 # variable-cell relaxation
 # . ../bash/vc-relax
+# relaxation
+# . ../bash/relax
 # self-consistent field calculation
 . ../bash/scf
 # band structure calculation along high-symmetry lines
@@ -93,6 +113,8 @@ num_k=8
 # post-processing for band structure
 # . ../bash/bands
 # non-self-consistent calculation 
-. ../bash/nscf
+# . ../bash/nscf    
 # projected wave functions 
-. ../bash/proj
+# . ../bash/proj
+# post processing charge density 
+# . ../bash/pp
