@@ -3,8 +3,9 @@
 
 # Output files
 *.pdf
+*.pyc
 
 # Directories 
-**/results-nonrel
-**/results-rel
-**/tempdir
+**/out
+**/temp
+**/figures
