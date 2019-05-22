@@ -1,0 +1,3 @@
+#!/bin/sh
+
+QE_PATH=$HOME/code/espresso6.0 
