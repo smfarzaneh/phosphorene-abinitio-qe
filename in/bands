@@ -1,0 +1,20 @@
+#!/bin/sh
+
+cat > $prefix.bands.in << EOF
+ &bands
+    prefix  = '$prefix'
+    outdir = '$TMP_DIR/'
+    filband = '$prefix.bands.dat'
+    lsym = .TRUE.
+    lp = .TRUE.
+    filp= '$prefix.momentum.dat'
+    lsigma(1) = $soc
+    lsigma(2) = $soc
+    lsigma(3) = $soc
+ /
+EOF
+
+$ECHO "  Post processing bands...\c"
+$BANDS_COMMAND < $prefix.bands.in > $prefix.bands.out
+check_failure $?
+$ECHO " done"

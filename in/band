@@ -1,0 +1,72 @@
+#!/bin/sh
+
+cat > $prefix.band.in << EOF
+ &control
+  calculation = 'bands'
+  title = 'Band structure calculation of $prefix'
+  verbosity = 'high'
+  restart_mode = 'from_scratch'
+  outdir ='$TMP_DIR/'
+  prefix ='$prefix'
+  pseudo_dir = '$PSEUDO_DIR/'
+  tprnfor = .TRUE. 
+  lelfield = $efield
+  nberrycyc = 1
+  gdir = 3
+  nppstr = 1
+ /
+ &system
+  ibrav = 8
+  celldm(1) = 8.404
+  celldm(2) = 0.756
+  celldm(3) = 20.0 
+  nat = 4 
+  ntyp = 1 
+  nbnd = $num_band
+  ecutwfc = $ecutwfc
+  occupations = 'fixed' 
+  lspinorb = $soc
+  noncolin = $soc
+  starting_magnetization = 0.0
+ /
+ &electrons
+  electron_maxstep = 100
+  conv_thr = 1.0d-8
+  mixing_mode = 'plain'
+  mixing_beta = 0.3d0
+  diagonalization = 'cg'
+  diago_full_acc = .TRUE.
+  efield = $efield_amp
+ /
+ATOMIC_SPECIES
+ P  30.974  $pseudo
+ATOMIC_POSITIONS {bohr}
+ $atom -0.699 0.000 2.008
+ $atom 0.699 -0.000 -2.008 
+ $atom -3.503 3.176 2.008
+ $atom 3.503 -3.176 -2.008 
+K_POINTS {tpiba_b}
+ 5
+ gG 20
+ S 20
+ Y 20 
+ gG 20
+ X 0
+EOF
+
+$ECHO "  running the band structure calculation...\c"
+if [ "$soc" == ".TRUE." ]; 
+then
+    if [ "$efield" == ".TRUE." ]; 
+    then
+        $PW_COMMAND < $prefix.band.in > $prefix.band.rel-efield.out
+        check_failure $?
+    else
+        $PW_COMMAND < $prefix.band.in > $prefix.band.rel.out
+        check_failure $?
+    fi
+else
+    $PW_COMMAND < $prefix.band.in > $prefix.band.out
+    check_failure $?
+fi  
+$ECHO " done"

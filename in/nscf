@@ -1,0 +1,61 @@
+#!/bin/sh
+
+cat > $prefix.nscf.in <<EOF
+ &control
+  calculation = 'nscf'
+  title = 'non-self-consistent field calculation of $prefix'
+  verbosity = 'high'
+  restart_mode = 'from_scratch'
+  outdir ='$TMP_DIR/'
+  prefix ='$prefix'
+  pseudo_dir = '$PSEUDO_DIR/'
+  tprnfor = .TRUE.
+  lelfield = $efield
+  nberrycyc = 1
+ /
+ &system
+  ibrav = 8
+  celldm(1) = 8.404
+  celldm(2) = 0.756
+  celldm(3) = 20.0 
+  nat = 4 
+  ntyp = 1 
+  nbnd = $num_band
+  ecutwfc = $ecutwfc
+  occupations = 'fixed' 
+  lspinorb = $soc
+  noncolin = $soc
+  starting_magnetization = 0.0
+ /
+ &electrons
+  electron_maxstep = 100
+  conv_thr = 1.0d-6
+  mixing_mode = 'plain'
+  mixing_beta = 0.3d0
+  diagonalization = 'david'
+  diago_full_acc = .TRUE.
+  efield_cart(1) = 0.0
+  efield_cart(2) = 0.0
+  efield_cart(3) = $efield_amp
+ /
+ATOMIC_SPECIES
+ $atom  30.974  $pseudo
+ATOMIC_POSITIONS {bohr}
+ $atom -0.699 0.000 2.008
+ $atom 0.699 -0.000 -2.008 
+ $atom -3.503 3.176 2.008
+ $atom 3.503 -3.176 -2.008 
+K_POINTS {automatic}
+ $num_k $num_k 1 0 0 0
+EOF
+
+$ECHO "  running the non-scf calculation...\c"
+if [ "$soc" == ".TRUE." ]; 
+then
+    $PW_COMMAND < $prefix.nscf.in > $prefix.nscf.rel.out
+    check_failure $?
+else
+    $PW_COMMAND < $prefix.nscf.in > $prefix.nscf.out
+    check_failure $?
+fi  
+$ECHO " done"
