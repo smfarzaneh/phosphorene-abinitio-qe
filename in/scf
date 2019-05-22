@@ -17,7 +17,7 @@ cat > $prefix.scf.in <<EOF
   ibrav = 8
   celldm(1) = 8.404
   celldm(2) = 0.756
-  celldm(3) = 10.0 
+  celldm(3) = 20.0 
   nat = 4 
   ntyp = 1 
   nbnd = $num_band
